@@ -1,6 +1,24 @@
 #include "address_map_nios2.h"
+#include "nios2_ctrl_reg_macros.h"
 
 #define LEDs ((volatile long *)LEDR_BASE)
+
+void enableInterrupts(void) {
+  config_PS2();
+
+  NIOS2_WRITE_IENABLE(0x3);
+  // enable interrupts in NIOS II turn on the pie bit
+  NIOS2_WRITE_STATUS(0x1);
+}
+
+void interrupt_handler(void){
+  int ipending;
+  NIOS_READ_IPENDING(ipending);
+
+  if(ipending & 0x1){
+    //interval timer ISR should be called
+  }
+}
 
 void config_PS2(void){
     volatile int *PS2_ptr = (int *)PS2_BASE;
