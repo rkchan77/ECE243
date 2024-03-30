@@ -3,9 +3,9 @@
 #define LEDs ((volatile long *)LEDR_BASE)
 
 void config_PS2(void){
-    //enable interrupts from PS2 by setting RE to 1
     volatile int *PS2_ptr = (int *)PS2_BASE;
-    *(PS2_ptr + 1) = 0x01;
+    *(PS2_ptr) = 0xff; //reset 
+    *(PS2_ptr + 1) = 0x1; //enable interrupts from PS2 by setting RE to 1
 }
 
 void ps2_ISR(void) {
