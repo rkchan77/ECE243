@@ -3,10 +3,23 @@
 
 #define LEDs ((volatile long *)LEDR_BASE)
 
+void config_PS2(void){
+    volatile int *PS2_ptr = (int *)PS2_BASE;
+    *(PS2_ptr) = 0xff; //reset 
+    *(PS2_ptr + 1) = 0x1; //enable interrupts from PS2 by setting RE to 1
+}
+
+void config_KEYS(){
+  volatile int *KEY_ptr = (int *)KEY_BASE; // address for the pushbuttons
+  *(KEY_ptr + 2) = 0x3; // enable interrupts for all pushbuttons
+}
+
 void enableInterrupts(void) {
   config_PS2();
+  config_KEYS();
 
-  NIOS2_WRITE_IENABLE(0x3);
+  //allow IRQ 1 (keys) and IRQ 7 (PS/2) to cause interrupts
+  NIOS2_WRITE_IENABLE(0x82);
   // enable interrupts in NIOS II turn on the pie bit
   NIOS2_WRITE_STATUS(0x1);
 }
@@ -15,15 +28,11 @@ void interrupt_handler(void){
   int ipending;
   NIOS_READ_IPENDING(ipending);
 
-  if(ipending & 0x1){
-    //interval timer ISR should be called
+  if(ipending & 0x2){
+    pushbutton_ISR();
+  } else if (ipending & 0x80){
+    ps2_ISR();
   }
-}
-
-void config_PS2(void){
-    volatile int *PS2_ptr = (int *)PS2_BASE;
-    *(PS2_ptr) = 0xff; //reset 
-    *(PS2_ptr + 1) = 0x1; //enable interrupts from PS2 by setting RE to 1
 }
 
 void ps2_ISR(void) {
@@ -50,4 +59,13 @@ void ps2_ISR(void) {
         *(PS2_ptr) = 0xF4;
     }
     *LEDs = byte3;
+}
+
+void pushbutton_ISR(void){
+  volatile int* KEY_ptr = (int*)KEY_BASE;
+  int press;
+
+  press = *(KEY_ptr + 3); // read pushbutton interrupt reg
+  *(KEY_ptr + 3) = press; // clear the interrupt
+
 }
