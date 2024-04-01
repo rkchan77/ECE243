@@ -1,7 +1,7 @@
 #include "address_map_nios2.h"
 #include "nios2_ctrl_reg_macros.h"
 
-#define LEDs ((volatile long *)LEDR_BASE)
+extern int keyPress;
 
 void config_PS2(void){
     volatile int *PS2_ptr = (int *)PS2_BASE;
@@ -15,13 +15,24 @@ void config_KEYS(){
 }
 
 void enableInterrupts(void) {
-  config_PS2();
-  config_KEYS();
-
   //allow IRQ 1 (keys) and IRQ 7 (PS/2) to cause interrupts
   NIOS2_WRITE_IENABLE(0x82);
   // enable interrupts in NIOS II turn on the pie bit
   NIOS2_WRITE_STATUS(0x1);
+}
+
+void disableInterrupts(int IRQ){
+  //disable interrupts from IRQ 1 but allow IRQ 7 to cause interrupts
+  if(IRQ == 1){
+    NIOS2_WRITE_IENABLE(0x80);
+  //disable interrupts from IRQ 7 but allow IRQ 1 to cause interrupts
+  } else if (IRQ == 7){
+    NIOS2_WRITE_IENABLE(0x2);
+  } else {
+  // disable ALL interrupts by setting pie bit to 0
+    NIOS2_WRITE_STATUS(0x0);
+
+  }
 }
 
 void interrupt_handler(void){
@@ -53,12 +64,9 @@ void ps2_ISR(void) {
       byte1 = byte2;
       byte2 = byte3;
       byte3 = PS2_data & 0xFF;
-    }
 
-    if((byte2 == 0xAA) && (byte3 == 0x00)){
-        *(PS2_ptr) = 0xF4;
+     
     }
-    *LEDs = byte3;
 }
 
 void pushbutton_ISR(void){
@@ -67,5 +75,12 @@ void pushbutton_ISR(void){
 
   press = *(KEY_ptr + 3); // read pushbutton interrupt reg
   *(KEY_ptr + 3) = press; // clear the interrupt
+
+  if(press & 0x1){
+    //key 0 was pressed
+    keyPress = 0;
+  } else if (press & 0x2){
+    keyPress = 1;
+  }
 
 }

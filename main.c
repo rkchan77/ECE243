@@ -5,13 +5,37 @@
 #include "nios2_ctrl_reg_macros.h"
 #include "img.h"
 
+/* FUNCTION DECLARATIONS */
+void draw_image(const short int img_240x320[240][320], unsigned int xInitial, unsigned int yInitial, unsigned int width, unsigned int height);
+void entire_screen(short int colour);
 void plot_pixel(int x, int y, short int line_color);
+void draw_text(int x, int y, char* text_ptr);
 void wait_for_vsync();
+void clear_text(int x, int y, int length);
 
 volatile int pixel_buffer_start;  // global variable
+int keyPress;
 
 void main(void) { 
+  config_PS2();
+  config_KEYS();
   enableInterrupts(); 
+  draw_image(title_page[240][320], 0, 0, 320, 240);
+
+  while(1){
+    /*
+    - draw title screen "Press space bar to start"
+    - draw main menu "press key0 for live video, key1 for image processing"
+    - if key0 is pressed...
+    - if key1 is pressed:
+    - draw options page: 1 for edge detection, 2 for brightness change, 3 for halftone, 4 for original image
+    - draw image
+
+    */
+  }  
+  
+  volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+	pixel_buffer_start = *(pixel_ctrl_ptr);
 }
 
 void draw_image(const short int img_240x320[240][320], unsigned int xInitial, unsigned int yInitial,
@@ -59,6 +83,26 @@ void draw_text(int x, int y, char* text_ptr) {
     ++text_ptr;
     ++offset;
   }
+}
+
+void wait_for_vsync(){
+	volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+	*pixel_ctrl_ptr = 1; //set s bit to 1
+	
+	int s_bit = *(pixel_ctrl_ptr + 3) & 1;
+	// poll s bit to see when its done drawing
+	while(s_bit != 0){
+		s_bit = *(pixel_ctrl_ptr + 3) & 1;
+	}
+}
+
+void clear_text(int x, int y, int length) {
+    int offset;
+    volatile char *character_buffer = (char *)FPGA_CHAR_BASE; // video character buffer
+    offset = (y << 7) + x;
+    for (int i = 0; i < length; ++i) {
+        *(character_buffer + offset + i) = 0; // write a space character
+    }
 }
 
 /* The assembly language code below handles CPU reset processing */
