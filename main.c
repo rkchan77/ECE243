@@ -6,21 +6,33 @@
 #include "img.h"
 
 /* FUNCTION DECLARATIONS */
-void draw_image(const short int img_240x320[240][320], unsigned int xInitial, unsigned int yInitial, unsigned int width, unsigned int height);
-void entire_screen(short int colour);
 void plot_pixel(int x, int y, short int line_color);
-void draw_text(int x, int y, char* text_ptr);
+void draw_image(const short int img_240x320[240][320], unsigned int xInitial, unsigned int yInitial, 
+unsigned int width, unsigned int height);
+void drawIcon(const short int img[40][47], unsigned int xInitial, unsigned int yInitial,
+unsigned int width, unsigned int height);
+void clearIcon(const short int img[240][320], unsigned int xInitial, unsigned int yInitial, unsigned int width, 
+unsigned int height);
+void entire_screen(short int colour);
 void wait_for_vsync();
+void draw_text(int x, int y, char* text_ptr);
 void clear_text(int x, int y, int length);
+void startScreen(int x);
 
-volatile int pixel_buffer_start;  // global variable
+/*GLOBAL VARIABLES*/
+volatile int pixel_buffer_start;  
+short int Buffer1[240][512];
+short int Buffer2[240][512];
 int keyPress;
 
 void main(void) { 
   config_PS2();
   config_KEYS();
   enableInterrupts(); 
-  draw_image(title_page[240][320], 0, 0, 320, 240);
+
+  // set spaceBarPressed to 1 if its pressed;
+  int spaceBarPressed;
+  startScreen(spaceBarPressed);
 
   while(1){
     /*
@@ -36,6 +48,12 @@ void main(void) {
   
   volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
 	pixel_buffer_start = *(pixel_ctrl_ptr);
+}
+
+void plot_pixel(int x, int y, short int colour) {
+  volatile short int* one_pixel_address;
+  one_pixel_address = pixel_buffer_start + (y << 10) + (x << 1);
+  *one_pixel_address = colour;
 }
 
 void draw_image(const short int img_240x320[240][320], unsigned int xInitial, unsigned int yInitial,
@@ -54,19 +72,56 @@ void draw_image(const short int img_240x320[240][320], unsigned int xInitial, un
   }
 }
 
-void entire_screen(short int colour) {
-  for (int x = 0; x < 320; x++) {
-    for (int y = 0; y < 240; y++) {
-      plot_pixel(x, y, colour);
-      // draw a pixel for every pixel on the screen
+void drawIcon(const short int img[40][47], unsigned int xInitial, unsigned int yInitial,
+                unsigned int width, unsigned int height) {
+
+  for (unsigned int x = 0; x < width; x++) {
+    for (unsigned int y = 0; y < height; y++) {
+		if(img[y][x] == 15416){
+			continue;
+		}
+		unsigned int xPlot = xInitial + x;
+		unsigned int yPlot = yInitial + y;
+      // make sure the pixel is within the bounds of the screen
+      if (xPlot < 320 && yPlot < 240 && xPlot >= 0 && yPlot >= 0) {
+        plot_pixel(xPlot, yPlot, img[y][x]);
+      }
     }
   }
 }
 
-void plot_pixel(int x, int y, short int colour) {
-  volatile short int* one_pixel_address;
-  one_pixel_address = pixel_buffer_start + (y << 10) + (x << 1);
-  *one_pixel_address = colour;
+void clearIcon(const short int img[240][320], unsigned int xInitial, unsigned int yInitial, unsigned int width, unsigned int height){
+	for (unsigned int x = 0; x < width; x++) {
+    	for (unsigned int y = 0; y < height; y++) {
+			unsigned int xPlot = xInitial + x;
+			unsigned int yPlot = yInitial + y;
+      	// make sure the pixel is within the bounds of the screen
+      	if (xPlot < 320 && yPlot < 240 && xPlot >= 0 && yPlot >= 0) {
+        	plot_pixel(xPlot, yPlot, img[yPlot][xPlot]);
+      	}
+    }
+  }
+}
+
+void entire_screen(short int colour) {
+  for (int x = 0; x < 320; x++) {
+    for (int y = 0; y < 240; y++) {
+      plot_pixel(x, y, colour);
+      // draw for every pixel on the screen
+    }
+  }
+}
+
+//waits for the display to stop drawin to avoid tearing
+void wait_for_vsync(){
+	volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+	*pixel_ctrl_ptr = 1; //set s bit to 1
+	
+	int s_bit = *(pixel_ctrl_ptr + 3) & 1;
+	// poll s bit to see when its done drawing
+	while(s_bit != 0){
+		s_bit = *(pixel_ctrl_ptr + 3) & 1;
+	}
 }
 
 /* subroutine to draw a string of text onto the VGA
@@ -85,17 +140,6 @@ void draw_text(int x, int y, char* text_ptr) {
   }
 }
 
-void wait_for_vsync(){
-	volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
-	*pixel_ctrl_ptr = 1; //set s bit to 1
-	
-	int s_bit = *(pixel_ctrl_ptr + 3) & 1;
-	// poll s bit to see when its done drawing
-	while(s_bit != 0){
-		s_bit = *(pixel_ctrl_ptr + 3) & 1;
-	}
-}
-
 void clear_text(int x, int y, int length) {
     int offset;
     volatile char *character_buffer = (char *)FPGA_CHAR_BASE; // video character buffer
@@ -103,6 +147,65 @@ void clear_text(int x, int y, int length) {
     for (int i = 0; i < length; ++i) {
         *(character_buffer + offset + i) = 0; // write a space character
     }
+}
+
+void startScreen(spaceBarPressed){
+  volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+
+  /* set front pixel buffer to Buffer 1 */
+  *(pixel_ctrl_ptr + 1) = (int) &Buffer1; // first store the address of Buffer1 in the back buffer
+  /* now, swap the front/back buffers, to set the front buffer location */
+    wait_for_vsync();
+    /* initialize a pointer to the pixel buffer, used by drawing functions */
+    pixel_buffer_start = *pixel_ctrl_ptr; // pixel_buffer_start points to the pixel buffer
+    entire_screen(0xFFFF);
+	
+    /* set back pixel buffer to Buffer 2 */
+    *(pixel_ctrl_ptr + 1) = (int) &Buffer2;
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
+    entire_screen(0xFFFF); // pixel_buffer_start points to the pixel buffer
+	
+  int xLocation[3];
+  int yLocation = 180;
+	xLocation[0] = 250;
+	int deltaX = -1;
+	
+	draw_image(titlePage, 0,0, 320, 240);	
+	wait_for_vsync();
+	pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+	draw_image(titlePage, 0,0, 320, 240);	
+	
+	
+	while(1){
+  	clear_text(0, 16, 1000);
+  	clear_text(0, 23, 1000);
+	  clear_text(0, 45, 1000);
+  	char text_top_row[60] = "Welcome to Image Processor & Live Video Display\0";
+  	char text_bottom_row[40] = "Press the space bar to...\0";
+  	char start[40] = "START!\0";
+  	/* update color */
+  	draw_text(16, 16, text_top_row);
+  	draw_text(29, 23, text_bottom_row);
+  	draw_text(37, 40, start);
+		
+		clearIcon(titlePage, xLocation[2], yLocation, 47, 40);
+		drawIcon(cursor, xLocation[0], yLocation, 47, 40);
+		if(xLocation[0] == 150){
+			deltaX = 1;
+		} else if (xLocation[0] == 250){
+			deltaX = -1;
+		}
+		xLocation[2] = xLocation[1];
+		xLocation[1] = xLocation[0];
+		xLocation[0] += deltaX;
+		
+		wait_for_vsync();
+		pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+
+    if(spaceBarPressed){
+      break;
+    }
+	}
 }
 
 /* The assembly language code below handles CPU reset processing */
