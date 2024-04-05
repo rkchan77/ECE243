@@ -4,6 +4,8 @@
 #include "interrupts.h"
 #include "nios2_ctrl_reg_macros.h"
 #include "img.h"
+#include "video.h"
+#include "globals.h"
 
 /* FUNCTION DECLARATIONS */
 void plot_pixel(int x, int y, short int line_color);
@@ -25,8 +27,6 @@ void imageProcessing();
 
 /*GLOBAL VARIABLES*/
 volatile int pixel_buffer_start;  
-short int Buffer1[240][512];
-short int Buffer2[240][512];
 extern volatile int edgeDetection = 0;
 extern volatile int brightness = 0;
 extern volatile int spaceBarPressed = 0;
