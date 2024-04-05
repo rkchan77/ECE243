@@ -54,8 +54,8 @@ int main(void) {
     pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
     entire_screen(0xFFFF); // pixel_buffer_start points to the pixel buffer
 
-	config_PS2();
-	config_KEYS();
+	  config_PS2();
+	  config_KEYS();
 	
 	  clear_text(0, 16, 1000);
   	clear_text(0, 23, 1000);
