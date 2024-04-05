@@ -4,7 +4,10 @@
 volatile int edgeDetection = 0;
 volatile int brightness = 0;
 volatile int spaceBarPressed = 0;
-volatile int keyPress = 0;
+volatile int key0Pressed = 0;
+volatile int key1Pressed = 0;
+volatile int original = 0;
+volatile int returnToMain = 0;
 
 void config_PS2(void){
     volatile int *PS2_ptr = (int *)PS2_BASE;
@@ -18,12 +21,12 @@ void config_KEYS(){
 }
 
 void enableInterrupts(int IRQ) {
-    //disable interrupts from KEYS but allow PS/2 to cause interrupts
+    //allow KEYS to cause interrupts but disable interrupts from PS/2
   if(IRQ == 1){
-    NIOS2_WRITE_IENABLE(0x80);
-  //disable interrupts from PS/2 but allow KEYS to cause interrupts
-  } else if (IRQ == 7){
     NIOS2_WRITE_IENABLE(0x2);
+  //allow PS/2 to cause interrupts but disable interrupts from KEYS
+  } else if (IRQ == 7){
+    NIOS2_WRITE_IENABLE(0x80);
   } else {
   //allow IRQ 1 (keys) and IRQ 7 (PS/2) to cause interrupts
   NIOS2_WRITE_IENABLE(0x82);
@@ -65,7 +68,11 @@ void ps2_ISR(void) {
         brightness = 1;
       } else if (compareBytes == (char) 0xf029){ // Space Bar
         spaceBarPressed = 1;
-      }
+      } else if (compareBytes == (char) 0xf044){
+		    original = 1;
+	    } else if (compareBytes == (char) 0xf076){
+		    returnToMain = 1;
+	  }
     }
     return;
 }
@@ -79,9 +86,9 @@ void pushbutton_ISR(void){
 
   if(press & 0x1){
     //key 0 was pressed
-    keyPress = 0;
+    key0Pressed = 1;
   } else if (press & 0x2){
-    keyPress = 1;
+    key1Pressed = 1;
   }
 
 }

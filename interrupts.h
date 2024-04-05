@@ -3,7 +3,8 @@
 
 void config_PS2(void);
 void config_KEYS(void);
-void enableInterrupts(void);
+void enableInterrupts(int);
+void disableInterrupts();
 void ps2_ISR(void);
 void pushbutton_ISR(void);
 void the_reset(void) __attribute__((section(".reset")));

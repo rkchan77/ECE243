@@ -19,6 +19,9 @@ void draw_text(int x, int y, char* text_ptr);
 void clear_text(int x, int y, int length);
 void startScreen();
 void mainMenu();
+void resetGlobals();
+void liveVideo();
+void imageProcessing();
 
 /*GLOBAL VARIABLES*/
 volatile int pixel_buffer_start;  
@@ -27,25 +30,59 @@ short int Buffer2[240][512];
 extern volatile int edgeDetection = 0;
 extern volatile int brightness = 0;
 extern volatile int spaceBarPressed = 0;
-extern volatile int keyPress = 0;
+extern volatile int key0Pressed = 0;
+extern volatile int key1Pressed = 0;
+extern volatile int original = 0;
+extern returnToMain = 0;
 
 int xLocation[3];
 
 int main(void) { 
-  volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
-  config_PS2();
-  config_KEYS();
-  enableInterrupts(); 
-
-  // set spaceBarPressed to 1 if its pressed;
-  startScreen();
-	entire_screen(0x00);
-	wait_for_vsync();
-	pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 	
-	mainMenu();
+	volatile int * pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
+	
+	/* set front pixel buffer to Buffer 1 */
+	*(pixel_ctrl_ptr + 1) = (int) &Buffer1; // first store the address of Buffer1 in the back buffer
+    /* now, swap the front/back buffers, to set the front buffer location */
+    wait_for_vsync();
+    /* initialize a pointer to the pixel buffer, used by drawing functions */
+    pixel_buffer_start = *pixel_ctrl_ptr; // pixel_buffer_start points to the pixel buffer
+    entire_screen(0xFFFF);
+	
+    /* set back pixel buffer to Buffer 2 */
+    *(pixel_ctrl_ptr + 1) = (int) &Buffer2;
+    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
+    entire_screen(0xFFFF); // pixel_buffer_start points to the pixel buffer
+
+	config_PS2();
+	config_KEYS();
+	
+	  clear_text(0, 16, 1000);
+  	clear_text(0, 23, 1000);
+	  clear_text(0, 37, 1000);
+  	enableInterrupts(0); 
+	  resetGlobals();
+    // set spaceBarPressed to 1 if its pressed;
+    startScreen();
+
+	  // in case it was pressed before
+	  resetGlobals();
+	  mainMenu();
+	
+	if(key0Pressed){
+		liveVideo();
+	}else if (key1Pressed){
+		imageProcessing();
+	}
 
   while(1){
+	//entire_screen(0xFFFF);
+	//wait_for_vsync();
+	//pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+	  
+	// if(returnToMain){
+		 // mainMenu();
+	 //}
     /*
     - draw title screen "Press space bar to start"
     - draw main menu "press key0 for live video, key1 for image processing"
@@ -159,22 +196,10 @@ void clear_text(int x, int y, int length) {
 }
 
 void startScreen(){
-  volatile int * pixel_ctrl_ptr = (int *)0xFF203020;
+	
+	volatile int * pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
 
-  /* set front pixel buffer to Buffer 1 */
-  *(pixel_ctrl_ptr + 1) = (int) &Buffer1; // first store the address of Buffer1 in the back buffer
-  /* now, swap the front/back buffers, to set the front buffer location */
-    wait_for_vsync();
-    /* initialize a pointer to the pixel buffer, used by drawing functions */
-    pixel_buffer_start = *pixel_ctrl_ptr; // pixel_buffer_start points to the pixel buffer
-    entire_screen(0xFFFF);
-	
-    /* set back pixel buffer to Buffer 2 */
-    *(pixel_ctrl_ptr + 1) = (int) &Buffer2;
-    pixel_buffer_start = *(pixel_ctrl_ptr + 1); // we draw on the back buffer
-    entire_screen(0xFFFF); // pixel_buffer_start points to the pixel buffer
-	
-  int yLocation = 180;
+    int yLocation = 180;
 	xLocation[0] = 250;
 	int deltaX = -1;
 	
@@ -185,14 +210,6 @@ void startScreen(){
 	
 	
 	while(1){
-  	char text_top_row[60] = "Welcome to Image Processor & Live Video Display\0";
-  	char text_bottom_row[40] = "Press the space bar to...\0";
-  	char start[40] = "START!\0";
-  
-  	draw_text(16, 16, text_top_row);
-  	draw_text(29, 23, text_bottom_row);
-  	draw_text(37, 40, start);
-		
 		clearIcon(titlePage, xLocation[2], yLocation, 47, 40);
 		drawIcon(cursor, xLocation[0], yLocation, 47, 40);
 		if(xLocation[0] == 150){
@@ -203,33 +220,90 @@ void startScreen(){
 		xLocation[2] = xLocation[1];
 		xLocation[1] = xLocation[0];
 		xLocation[0] += deltaX;
+
+    	if(spaceBarPressed){
+      		break;
+    	}
 		
 		wait_for_vsync();
-		pixel_buffer_start = *(pixel_ctrl_ptr + 1);
-
-    if(spaceBarPressed){
-      clear_text(0, 16, 1000);
-  	  clear_text(0, 23, 1000);
-	    clear_text(0, 37, 1000);
-      break;
-    }
-    wait_for_vsync();
 		pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 	}
 }
 
 void mainMenu(){
-  entire_screen(11027);
+	volatile int * pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
+	
+  entire_screen(15416);
+	wait_for_vsync();
+	pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 
-    char text_top_row[60] = "MAIN MENU:\0";
-  	char text_bottom_row[40] = "KEY0 - LIVE VIDEO\0";
-  	char start[40] = "KEY1 - IMAGE PROCESSING (static image)\0";
+    char one[40] = "MAIN MENU:\0";
+  	char two[40] = "KEY0 - LIVE VIDEO\0";
+  	char three[60] = "KEY1 - IMAGE PROCESSING (static image)\0";
+	  char four[60] = "at any time press esc to return here\0";
   
-  	draw_text(16, 16, text_top_row);
-  	draw_text(29, 23, text_bottom_row);
-  	draw_text(37, 40, start);
+  	draw_text(25, 16, one);
+  	draw_text(25, 25, two);
+  	draw_text(25, 35, three);
+	  draw_text(25, 45, four);
     
     while(1){
-
+		if(key0Pressed || key1Pressed ){
+			clear_text(0, 16, 1000);
+  		clear_text(0, 25, 1000);
+			clear_text(0, 35, 1000);
+			clear_text(0, 45, 1000);
+			break;
+		}
     }
+}
+
+void resetGlobals(){
+	edgeDetection = 0;
+	brightness = 0;
+	spaceBarPressed = 0;
+	key0Pressed = 0;
+	key1Pressed = 0;
+	original = 0;
+	//returnToMain = 0;
+}
+
+void liveVideo(){
+}
+
+void imageProcessing(){
+	volatile int * pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
+	
+    entire_screen(15416);
+
+    char one[60] = "Press \"O\" to display original image\0";
+  	char two[60] = "Press \"B\" to change the brightness\0";
+  	char three[60] = "Press \"E\" for edge detection\0";
+  	char four[60] = "Press esc to return to main menu\0";
+  
+  	draw_text(20, 15, one);
+  	draw_text(20, 25, two);
+  	draw_text(20, 35, three);
+	draw_text(20, 45, four);
+	
+	wait_for_vsync();
+	pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+    
+    while(1){
+		/*resetGlobals();
+		if(original){
+			clear_text(0, 15, 1000);
+  			clear_text(0, 25, 1000);
+			clear_text(0, 35, 1000);
+			clear_text(0, 45, 1000);
+			break;
+		} else if (returnToMain){
+			clear_text(0, 15, 1000);
+  			clear_text(0, 25, 1000);
+			clear_text(0, 35, 1000);
+			clear_text(0, 45, 1000);
+			break;
+		}*/
+    }
+	
 }
