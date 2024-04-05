@@ -8,15 +8,16 @@ volatile uint32_t* Video_in_controller = (void*)0xFF20306C;
 volatile uint16_t* Buffer = (void*)0x08000000;
 
 int pixel_buffer_start; 
-bool grayscaleFilter = false;
-bool mirrorFilter = false;
+bool mirrorFilter = true;
 bool invertFilter = false;
 bool sepiaFilter = false; 
+bool demonFilter = false;
 bool randomFilter = false;
 
 #define MAX_X 320
 #define MAX_Y 240
 
+void clear_screen();
 void wait_for_vsync();
 
 uint16_t read_video_pixel(int x, int y) {
@@ -81,29 +82,15 @@ int main() {
         for (int x = 0; x < MAX_X; x++) {
             for (int y = 0; y < MAX_Y; y++) {
                 uint16_t value = read_video_pixel(x,y);
-                unsigned short int b = value & 0x1F;        // Blue component
-                unsigned short int g = (value >> 5) & 0x3F;   // Green component
-                unsigned short int r = (value >> 11) & 0x1F;  // Red component
-
-                if (grayscaleFilter) {
-                    value = ((0.2126 * r) + (0.7152 * g) + (0.0722 * b));
-                } else if (mirrorFilter) {
+                if (mirrorFilter) {
                     if (x > MAX_X / 2) value = read_video_pixel(MAX_X - 1 - x, y);
                 } else if (invertFilter) {
                     value = ~value & 0xFFFF;
                 } else if (sepiaFilter) {
-                    uint16_t sepia_r = (uint16_t)((0.393 * r) + (0.769 * g) + (0.189 * b));
-                    uint16_t sepia_g = (uint16_t)((0.349 * r) + (0.686 * g) + (0.168 * b));
-                    uint16_t sepia_b = (uint16_t)((0.272 * r) + (0.534 * g) + (0.131 * b));
-                    
-                    // Clamp the values to fit within 16-bit range
-                    sepia_r = (sepia_r > 0x1F) ? 0x1F : sepia_r;
-                    sepia_g = (sepia_g > 0x3F) ? 0x3F : sepia_g;
-                    sepia_b = (sepia_b > 0x1F) ? 0x1F : sepia_b;
-                    
-                    // Combine sepia components
-                    value = (sepia_r << 11) | (sepia_g << 5) | sepia_b;
-                } else if (randomFilter) {
+                    value = value & 0b1111111111000000;
+                } else if (demonFilter) {
+                    value = value & 0b1111100000000000;
+                }else if (randomFilter) {
                      value -= read_video_pixel(x+1, y);
                 }
                 plot_pixel(x, y, value);
