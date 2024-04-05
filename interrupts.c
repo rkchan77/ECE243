@@ -234,7 +234,7 @@ asm("ldw r30, 120(sp)"); // r30 = ba
 asm("ldw r31, 124(sp)"); // r31 = ra
 asm("addi sp, sp, 128");
 asm("eret");
-}
+};
 
 void interrupt_handler(void){
   int ipending;
