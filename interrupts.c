@@ -17,25 +17,24 @@ void config_KEYS(){
   *(KEY_ptr + 2) = 0x3; // enable interrupts for all pushbuttons
 }
 
-void enableInterrupts(void) {
+void enableInterrupts(int IRQ) {
+    //disable interrupts from KEYS but allow PS/2 to cause interrupts
+  if(IRQ == 1){
+    NIOS2_WRITE_IENABLE(0x80);
+  //disable interrupts from PS/2 but allow KEYS to cause interrupts
+  } else if (IRQ == 7){
+    NIOS2_WRITE_IENABLE(0x2);
+  } else {
   //allow IRQ 1 (keys) and IRQ 7 (PS/2) to cause interrupts
   NIOS2_WRITE_IENABLE(0x82);
+  }
   // enable interrupts in NIOS II turn on the pie bit
   NIOS2_WRITE_STATUS(0x1);
 }
 
-void disableInterrupts(int IRQ){
-  //disable interrupts from IRQ 1 but allow IRQ 7 to cause interrupts
-  if(IRQ == 1){
-    NIOS2_WRITE_IENABLE(0x80);
-  //disable interrupts from IRQ 7 but allow IRQ 1 to cause interrupts
-  } else if (IRQ == 7){
-    NIOS2_WRITE_IENABLE(0x2);
-  } else {
+void disableInterrupts(){
   // disable ALL interrupts by setting pie bit to 0
-    NIOS2_WRITE_STATUS(0x0);
-  }
-  return;
+  NIOS2_WRITE_STATUS(0x0);
 }
 
 void ps2_ISR(void) {

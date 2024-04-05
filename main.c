@@ -18,6 +18,7 @@ void wait_for_vsync();
 void draw_text(int x, int y, char* text_ptr);
 void clear_text(int x, int y, int length);
 void startScreen();
+void mainMenu();
 
 /*GLOBAL VARIABLES*/
 volatile int pixel_buffer_start;  
@@ -187,7 +188,7 @@ void startScreen(){
   	char text_top_row[60] = "Welcome to Image Processor & Live Video Display\0";
   	char text_bottom_row[40] = "Press the space bar to...\0";
   	char start[40] = "START!\0";
-  	/* update color */
+  
   	draw_text(16, 16, text_top_row);
   	draw_text(29, 23, text_bottom_row);
   	draw_text(37, 40, start);
@@ -215,4 +216,20 @@ void startScreen(){
     wait_for_vsync();
 		pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 	}
+}
+
+void mainMenu(){
+  entire_screen(11027);
+
+    char text_top_row[60] = "MAIN MENU:\0";
+  	char text_bottom_row[40] = "KEY0 - LIVE VIDEO\0";
+  	char start[40] = "KEY1 - IMAGE PROCESSING (static image)\0";
+  
+  	draw_text(16, 16, text_top_row);
+  	draw_text(29, 23, text_bottom_row);
+  	draw_text(37, 40, start);
+    
+    while(1){
+
+    }
 }
