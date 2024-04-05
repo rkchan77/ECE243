@@ -1,5 +1,6 @@
 #include "address_map_nios2.h"
 #include "nios2_ctrl_reg_macros.h"
+#include <stdbool.h>
 
 volatile int edgeDetection = 0;
 volatile int brightness = 0;
@@ -8,6 +9,12 @@ volatile int key0Pressed = 0;
 volatile int key1Pressed = 0;
 volatile int original = 0;
 volatile int returnToMain = 0;
+
+extern bool mirrorFilter;
+extern bool invertFilter;
+extern bool sepiaFilter; 
+extern bool demonFilter;
+extern bool randomFilter;
 
 void config_PS2(void){
     volatile int *PS2_ptr = (int *)PS2_BASE;
@@ -72,7 +79,37 @@ void ps2_ISR(void) {
 		    original = 1;
 	    } else if (compareBytes == (char) 0xf076){
 		    returnToMain = 1;
-	  }
+	    } else if (compareBytes == (char) 0xf03a) { // key m
+        mirrorFilter = true;
+        invertFilter = false;
+        sepiaFilter = false; 
+        demonFilter = false;
+        randomFilter  = false;
+      } else if (compareBytes == (char) 0xf043) { // key i
+        mirrorFilter = false;
+        invertFilter = true;
+        sepiaFilter = false; 
+        demonFilter = false;
+        randomFilter  = false;
+      } else if (compareBytes == (char) 0xf01b) { // key s
+        mirrorFilter = false;
+        invertFilter = false;
+        sepiaFilter = true; 
+        demonFilter = false;
+        randomFilter  = false;
+      } else if (compareBytes == (char) 0xf02d) { // key r
+        mirrorFilter = false;
+        invertFilter = false;
+        sepiaFilter = false; 
+        demonFilter = true;
+        randomFilter  = false;
+      } else if (compareBytes == (char) 0xf04d) { // key p
+        mirrorFilter = false;
+        invertFilter = false;
+        sepiaFilter = false; 
+        demonFilter = false;
+        randomFilter  = true;
+      }
     }
     return;
 }
