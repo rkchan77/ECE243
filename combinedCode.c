@@ -1115,6 +1115,8 @@ void liveVideo();
 void video_box(int x1, int y1, int x2, int y2, short pixel_color);
 void imageProcessing();
 
+void sobel(const unsigned short int image[240][320]);
+
 void config_PS2(void);
 void config_KEYS();
 void enableInterrupts(int);
@@ -1136,11 +1138,19 @@ volatile int key0Pressed = 0;
 volatile int key1Pressed = 0;
 volatile int original = 0;
 volatile int returnToMain = 0;
+volatile int backspace = 0;
+volatile int imageNumber = 1;
+
 volatile int mirrorFilter = 0;
 volatile int invertFilter = 0;
 volatile int sepiaFilter = 0;
 volatile int demonFilter = 0;
 volatile int randomFilter = 0;
+
+unsigned short int edges[MAX_Y][MAX_X] = {0};
+unsigned short int grayscale[MAX_Y][MAX_X] = {0};
+unsigned short int filtered[MAX_Y][MAX_X] = {0};
+unsigned short int brightness[MAX_Y][MAX_X] = {0};
 
 int xLocation[3];
 
@@ -1189,6 +1199,10 @@ int main(void) {
 	if(returnToMain){
 		resetGlobals();
 		mainMenu();
+	}
+	  
+	if(backspace){
+		key1Pressed = 1;
 	}
   }  
 
@@ -1364,8 +1378,10 @@ void resetGlobals(){
 	spaceBarPressed = 0;
 	key0Pressed = 0;
 	key1Pressed = 0;
+	imageNumber = 1;
 	original = 0;
 	returnToMain = 0;
+	backspace = 0;
 	mirrorFilter = 0;
 	invertFilter = 0;
 	sepiaFilter = 0;
@@ -1433,31 +1449,85 @@ void imageProcessing(){
   	char two[60] = "Press \"B\" to change the brightness\0";
   	char three[60] = "Press \"E\" for edge detection\0";
   	char four[60] = "Press esc to return to main menu\0";
+	char five[60] = "Press backspace anytime to return here\0";
   
-  	draw_text(20, 15, one);
-  	draw_text(20, 25, two);
-  	draw_text(20, 35, three);
-	draw_text(20, 45, four);
+  	draw_text(15, 15, one);
+  	draw_text(15, 25, two);
+  	draw_text(15, 35, three);
+	draw_text(15, 45, four);
+	draw_text(15, 50, five);
 	
 	wait_for_vsync();
 	pixel_buffer_start = *(pixel_ctrl_ptr + 1);
     
     while(1){
+		video_box(0, 220, 220, 240, 0x00);
+		char instructions[60] = "Choose between images using 1, 2, or 3 on keyboard\0";
+		draw_text(2, 57, instructions);
+		
 		if(original){
 			clear_all_text();
-			draw_image(img, 0,0,320,240);
-			wait_for_vsync();
-			pixel_buffer_start = *(pixel_ctrl_ptr + 1);
-			
-			while(1){
+			if(imageNumber == 1){
+				draw_image(img, 0,0,320,240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+			} else if (imageNumber == 2){
+				draw_image(gray, 0,0,320,240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+			} else if (imageNumber == 3){
+				draw_image(landscape, 0,0,320,240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 			}
-			
 		} else if (edgeDetection){
 			clear_all_text();
+			if(imageNumber == 1){
+			}
 			break;
 		} else if (brightness){
+			
+		}
+		
+		if (returnToMain | backspace){
+			clear_all_text();
+			break;
 		}
     }
+	
+}
+
+void sobel(const unsigned short int image[240][320]){
+	// Sobel operator kernels
+	int sobel_x[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+	// to detect the horizontal edges
+	int sobel_y[3][3] = {{-1, -2, -1}, {0, 0, 0}, {1, 2, 1}};
+	// to detect the vertical edges
+	
+	// Perform convolution with Sobel operator
+	for (int y = 1; y < MAX_Y - 1; y++) {
+    	for (int x = 1; x < MAX_X - 1; x++) {
+        	int gradient_x = 0;
+        	int gradient_y = 0;
+
+        	// Compute gradient in x direction
+        for (int ky = -1; ky <= 1; ky++) {
+            for (int kx = -1; kx <= 1; kx++) {
+                gradient_x += image[y + ky][x + kx] * sobel_x[ky + 1][kx + 1];
+            }
+        }
+
+        // Compute gradient in y direction
+        for (int ky = -1; ky <= 1; ky++) {
+            for (int kx = -1; kx <= 1; kx++) {
+                gradient_y += image[y + ky][x + kx] * sobel_y[ky + 1][kx + 1];
+            }
+        }
+
+        // Compute magnitude of gradient
+        edges[y][x] = abs(gradient_x) + abs(gradient_y);
+    }
+}
 	
 }
 
@@ -1554,7 +1624,15 @@ void ps2_ISR(void) {
         sepiaFilter = 0; 
         demonFilter = 0;
         randomFilter  = 1;
-      }
+      } else if (compareBytes == (char) 0xf066){
+		backspace = 1;
+	  } else if (compareBytes == (char)0xf016){
+		  imageNumber = 1;
+	  } else if (compareBytes == (char)0xf01e){
+		  imageNumber = 2;
+	  } else if (compareBytes == (char)0xf026){
+		  imageNumber = 3;
+	  }
     }
     return;
 }
@@ -1692,3 +1770,7 @@ void interrupt_handler(void){
   }
   return;
 }
+
+	
+	
+	
