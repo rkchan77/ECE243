@@ -1,5 +1,4 @@
 #include "video.h"
-#include "globals.h"
 
 uint16_t read_video_pixel(int x, int y) {
     return *(volatile uint16_t*)(((int)Buffer) + (y << 10) + (x << 1));
@@ -28,6 +27,7 @@ void wait_for_vsync_vid(){
 }
 
 void liveVideo() {
+    volatile int* Video_in_controller = (int*)0xFF20306C;
     *Video_in_controller = 0x4;
     
     while (1) {

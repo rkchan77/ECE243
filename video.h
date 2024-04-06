@@ -6,7 +6,6 @@
 
 
 volatile int* pixel_ctrl_ptr = (int*)PIXEL_BUF_CTRL_BASE;
-volatile int* Video_in_controller = (int*)0xFF20306C;
 volatile int* Buffer = (int*)FPGA_PIXEL_BUF_BASE;
 
 extern int pixel_buffer_start; 
