@@ -1359,6 +1359,7 @@ void clear_text(int x, int y, int length);
 void clear_all_text();
 void startScreen();
 void mainMenu();
+void intro();
 void resetGlobals();
 short int read_video_pixel(int x, int y);
 void liveVideo();
@@ -1450,7 +1451,7 @@ int main(void) {
   while(1){
 	if(key0Pressed){
 		resetGlobals();
-		liveVideo();
+		intro();
 	}else if (key1Pressed){
 		resetGlobals();
 		imageProcessing();
@@ -1530,6 +1531,43 @@ void mainMenu(){
 		}
     }
 }
+
+void intro(){
+	volatile int * pixel_ctrl_ptr = (int *)PIXEL_BUF_CTRL_BASE;
+	
+    entire_screen(15416);
+	wait_for_vsync();
+	pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+
+    char one[40] = "WElCOME TO PHOTOBOOTH\0";
+  	char two[40] = "tools available for you: \0";
+  	char three[60] = " -> take a picture\0";
+	char four[60] = " -> change the filter\0";
+	char five[60] = "m - mirror, i - invert, s - sepia, r - red, p - random\0";
+	char six[60] = "Press esc anytime to return to main menu\0";
+	char seven[60] = "SPACE BAR TO START\0";
+  
+  	draw_text(10, 10, one);
+  	draw_text(10, 15, two);
+  	draw_text(15, 20, three);
+	draw_text(15, 25, four);
+	draw_text(10, 35, five);
+	draw_text(10, 40, six);
+	draw_text(30, 47, seven);
+
+	
+    while(1){
+		if(spaceBarPressed){
+			clear_all_text();
+			liveVideo();
+		}
+		if(returnToMain){
+			clear_all_text();
+			break;
+		}
+    }
+}
+
 
 void plot_pixel(int x, int y, short int colour) {
   volatile short int* one_pixel_address;
@@ -1681,7 +1719,6 @@ void liveVideo() {
                 plot_pixel(x, y, value);
             }
         }
-		video_box(0, 200, 150, 240, 15416);
 		
         wait_for_vsync();
         pixel_buffer_start = *(pixel_ctrl_ptr + 1);
