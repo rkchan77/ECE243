@@ -1738,8 +1738,8 @@ void imageProcessing(){
 			char instructions[60] = "Choose between images using 1, 2, 3, 4 on keyboard\0";
 			draw_text(2, 57, instructions);
 			if(imageNumber == 1){
-				rgb_to_grayscale(img);
-				sobel(grayscale);
+				//rgb_to_grayscale(img);
+				sobel(img);
 				draw_image(edges, 0, 0, 320, 240);
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
