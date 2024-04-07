@@ -1312,6 +1312,9 @@ const short int cursor[40][47] = {
 #define HPS_TIMER2_BASE			0xFFD00000
 #define HPS_TIMER3_BASE			0xFFD01000
 #define FPGA_BRIDGE			0xFFD0501C
+
+
+/* DEFINITIONS FOR INTERRUPTS */
 	
 #define NIOS2_READ_STATUS(dest) \
 do { dest = __builtin_rdctl(0); } while (0)
@@ -1341,6 +1344,7 @@ do { dest = __builtin_rdctl(5); } while (0)
 #define MAX_Y 240
 	
 /* FUNCTION DECLARATIONS */
+	
 void plot_pixel(int x, int y, short int line_color);
 void draw_image(const unsigned short int img_240x320[240][320], unsigned int xInitial, unsigned int yInitial, 
 unsigned int width, unsigned int height);
@@ -1364,6 +1368,8 @@ void imageProcessing();
 void sobel(const unsigned short int image[240][320]);
 void rgb_to_grayscale(const unsigned short int rgb[240][320]);
 void adjust_brightness(const unsigned short int rgb[240][320], int brightness_change);
+void grayscale_to_rgb(const unsigned short int grayscale[240][320]);
+
 int switchInput();
 
 void config_PS2(void);
@@ -1376,10 +1382,14 @@ void the_reset(void) __attribute__((section(".reset")));
 void the_exception(void) __attribute__((section(".exceptions")));
 void interrupt_handler(void);
 
-/*GLOBAL VARIABLES*/
+/* GLOBAL VARIABLES FOR VGA & DOUBLE BUFFERING */
 volatile int pixel_buffer_start;  
 short int Buffer1[240][512];
 short int Buffer2[240][512];
+
+
+/* GLOBAL BOOLEAN VARIABLES FOR TOGGLING */
+
 volatile int edgeDetection = 0;
 volatile int brightness = 0;
 volatile int spaceBarPressed = 0;
@@ -1389,6 +1399,7 @@ volatile int original = 0;
 volatile int returnToMain = 0;
 volatile int backspace = 0;
 volatile int imageNumber = 1;
+volatile int switchColours = 0;
 
 volatile int mirrorFilter = 0;
 volatile int invertFilter = 0;
@@ -1396,10 +1407,13 @@ volatile int sepiaFilter = 0;
 volatile int demonFilter = 0;
 volatile int randomFilter = 0;
 
+/* GLOBALS ARRAYS FOR THE DIFFERENT IMAGE PROCESSING FILTERS */
+
 unsigned short int edges[MAX_Y][MAX_X] = {0};
 unsigned short int grayscale[MAX_Y][MAX_X] = {0};
 unsigned short int filtered[MAX_Y][MAX_X] = {0};
 unsigned short int bright[MAX_Y][MAX_X] = {0};
+unsigned short int rgb[MAX_Y][MAX_X] = {0};
 
 int xLocation[3];
 
@@ -1636,6 +1650,7 @@ void resetGlobals(){
 	sepiaFilter = 0;
 	demonFilter = 0;
 	randomFilter = 0;
+	switchColours = 0;
 }
 
 short int read_video_pixel(int x, int y) {
@@ -1697,24 +1712,28 @@ void imageProcessing(){
     char one[60] = "Press \"O\" to display original image\0";
   	char two[60] = "Press \"B\" to change the brightness\0";
   	char three[60] = "Press \"E\" for edge detection\0";
-  	char four[60] = "Press esc to return to main menu\0";
-	char five[60] = "Press backspace anytime to return here\0";
+	char four[60] = "Press \"C\" to switch between rgb and grayscale";
+  	char five[60] = "Press esc to return to main menu\0";
+	char six[60] = "Press backspace anytime to return here\0";
   
-  	draw_text(15, 15, one);
-  	draw_text(15, 25, two);
-  	draw_text(15, 35, three);
-	draw_text(15, 45, four);
-	draw_text(15, 50, five);
+  	draw_text(15, 10, one);
+  	draw_text(15, 16, two);
+  	draw_text(15, 22, three);
+	draw_text(15, 30, four);
+	draw_text(15, 40, five);
+	draw_text(15, 50, six);
 	
 	wait_for_vsync();
 	pixel_buffer_start = *(pixel_ctrl_ptr + 1);
     
     while(1){	
 		if(original){
+			
 			clear_all_text();
 			video_box(0, 220, 220, 240, 0x00);
 			char instructions[60] = "Choose between images using 1, 2, 3, 4 on keyboard\0";
 			draw_text(2, 57, instructions);
+			
 			if(imageNumber == 1){
 				draw_image(img, 0,0,320,240);
 				wait_for_vsync();
@@ -1732,11 +1751,14 @@ void imageProcessing(){
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 			}
+			
 		} else if (edgeDetection){
+			
 			clear_all_text();
 			video_box(0, 220, 220, 240, 0x00);
 			char instructions[60] = "Choose between images using 1, 2, 3, 4 on keyboard\0";
 			draw_text(2, 57, instructions);
+			
 			if(imageNumber == 1){
 				//rgb_to_grayscale(img);
 				sobel(img);
@@ -1760,6 +1782,7 @@ void imageProcessing(){
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 			}
 		} else if (brightness){
+			
 			clear_all_text();
 			video_box(0, 210, 220, 240, 0x00);
 			char instructions[60] = "Choose between images using 1, 2, 3, 4 on keyboard\0";
@@ -1767,21 +1790,25 @@ void imageProcessing(){
 			draw_text(2, 54, instructions);
 			draw_text(2, 57, instructions2);
 			int brightness_change = switchInput();
+			
 			if(imageNumber == 1){
 				adjust_brightness(img, brightness_change);
 				draw_image(bright, 0, 0, 320, 240);
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+				
 			} else if (imageNumber == 2){
 				adjust_brightness(gray, brightness_change);
 				draw_image(bright, 0, 0, 320, 240);
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+				
 			} else if (imageNumber == 3){
 				adjust_brightness(landscape, brightness_change);
 				draw_image(bright, 0, 0, 320, 240);
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+				
 			} else if (imageNumber == 4){
 				adjust_brightness(rocket, brightness_change);
 				draw_image(bright, 0, 0, 320, 240);
@@ -1789,7 +1816,43 @@ void imageProcessing(){
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 			}
 			
-		}
+		} else if (switchColours) {
+			
+			clear_all_text();
+			video_box(0, 220, 220, 240, 0x00);
+			char instructions[60] = "Choose between images using 1, 2, 3, 4 on keyboard\0";
+			draw_text(2, 57, instructions);
+			
+			if(imageNumber == 1){
+				
+				rgb_to_grayscale(img);
+				draw_image(grayscale, 0, 0, 320, 240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+				
+			} else if (imageNumber == 2){
+				
+				grayscale_to_rgb(gray);
+				draw_image(rgb, 0, 0, 320, 240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+				
+			} else if (imageNumber == 3){
+				
+				grayscale_to_rgb(landscape);
+				draw_image(rgb, 0, 0, 320, 240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+				
+			} else if (imageNumber == 4){
+				rgb_to_grayscale(rocket);
+				draw_image(grayscale, 0, 0, 320, 240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+			}
+			
+			
+		} 
 		
 		if (returnToMain | backspace){
 			clear_all_text();
@@ -1873,11 +1936,36 @@ void adjust_brightness(const unsigned short int rgb[240][320], int brightness_ch
     }
 }
 
+// Function to convert a grayscale image to RGB
+void grayscale_to_rgb(const unsigned short int grayscale[240][320]) {
+    for (int i = 0; i < 240; ++i) {
+        for (int j = 0; j < 320; ++j) {
+            // Copying grayscale intensity value to all RGB channels
+            rgb[i][j] = grayscale[i][j] | (grayscale[i][j] << 5) | (grayscale[i][j] << 11);
+        }
+    }
+}
+
+
 int switchInput(){
 	volatile int *SW_ptr = (int*)SW_BASE;
-	int brightness_change = *(SW_ptr);
-	return brightness_change;
+	int value = *(SW_ptr);
+	
+	int sign = value & 0x1;
+	
+	if(sign){
+		value = value/16;
+		return value;
+	} else {
+		value = value / 16;
+		return -value;
+	}
+	
 }
+
+
+/* CODE FOR INTERRUPTS */
+
 
 void config_PS2(void){
     volatile int *PS2_ptr = (int *)PS2_BASE;
@@ -1889,6 +1977,7 @@ void config_KEYS(){
   volatile int *KEY_ptr = (int *)KEY_BASE; // address for the pushbuttons
   *(KEY_ptr + 2) = 0x3; // enable interrupts for all pushbuttons
 }
+
 
 void enableInterrupts(int IRQ) {
     //allow KEYS to cause interrupts but disable interrupts from PS/2
@@ -1905,10 +1994,12 @@ void enableInterrupts(int IRQ) {
   NIOS2_WRITE_STATUS(0x1);
 }
 
+
 void disableInterrupts(){
   // disable ALL interrupts by setting pie bit to 0
   NIOS2_WRITE_STATUS(0x0);
 }
+
 
 void ps2_ISR(void) {
   unsigned char byte1 = 0, byte2 = 0, byte3 = 0;
@@ -1936,24 +2027,33 @@ void ps2_ISR(void) {
           edgeDetection = 1;
 		  original = 0;
 		  brightness = 0;
+		  switchColours = 0;
+		  
       } else if (compareBytes == (char) 0xf032){ //B key
           brightness = 1;
 		  original = 0;
 		  edgeDetection = 0;
+		  switchColours = 0;
+		  
       } else if (compareBytes == (char) 0xf029){ // Space Bar
         spaceBarPressed = 1;
+		  
       } else if (compareBytes == (char) 0xf044){
 		  original = 1;
 		  edgeDetection = 0;
 		  brightness = 0;
-	  } else if (compareBytes == (char) 0xf076){
+		  switchColours = 0;
+		  
+	  } else if (compareBytes == (char) 0xf076){ // esc
 		  returnToMain = 1;
+		  
 	  } else if (compareBytes == (char) 0xf03a) { // key m
         mirrorFilter = 1;
         invertFilter = 0;
         sepiaFilter = 0; 
         demonFilter = 0;
         randomFilter  = 0;
+
       } else if (compareBytes == (char) 0xf043) { // key i
         mirrorFilter = 0;
         invertFilter = 1;
@@ -1978,20 +2078,34 @@ void ps2_ISR(void) {
         sepiaFilter = 0; 
         demonFilter = 0;
         randomFilter  = 1;
-      } else if (compareBytes == (char) 0xf066){
+      } else if (compareBytes == (char) 0xf066){ // delete/backspace
 		backspace = 1;
-	  } else if (compareBytes == (char)0xf016){
+		  
+	  } else if (compareBytes == (char)0xf016){ // key 1
 		  imageNumber = 1;
-	  } else if (compareBytes == (char)0xf01e){
+		  
+	  } else if (compareBytes == (char)0xf01e){ // key 2
 		  imageNumber = 2;
-	  } else if (compareBytes == (char)0xf026){
+		  
+	  } else if (compareBytes == (char)0xf026){ // key 3
 		  imageNumber = 3;
-	  } else if (compareBytes == (char)0xf025){
+		  
+	  } else if (compareBytes == (char)0xf025){ //key 4
 		  imageNumber = 4;
+		  
+	  } else if (compareBytes == (char)0xf021){ // key c
+		  
+			edgeDetection = 0;
+		  	original = 0;
+		  	brightness = 0;
+		  	switchColours = 1;
+			  
 	  }
+	  
     }
     return;
 }
+
 
 void pushbutton_ISR(void){
   volatile int* KEY_ptr = (int*)KEY_BASE;
@@ -2009,6 +2123,7 @@ void pushbutton_ISR(void){
 
 }
 
+/* THIS CODE IS SAMPLE CODE FROM THE DE1-SOC MANUAL */
 /* The assembly language code below handles CPU reset processing */
 void the_reset(void)
 /*******************************************************************************
@@ -2114,6 +2229,7 @@ asm("ldw r31, 124(sp)"); // r31 = ra
 asm("addi sp, sp, 128");
 asm("eret");
 }
+
 
 void interrupt_handler(void){
   int ipending;
