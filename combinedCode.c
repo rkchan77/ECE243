@@ -1,5 +1,4 @@
-
-	 unsigned short int img[240][320] = {
+ unsigned short int img[240][320] = {
 	{26069,26069,26036,26036,26036,28085,28117,26036,26037,28085,26037,26036,26069,26037,28085,28117,28085,26037,26037,26037,26036,26037,26036,26036,26037,26037,26037,26037,26037,26037,26037,23988,26037,26037,26005,26037,23989,23989,26037,26037,23989,26037,26037,23957,23989,23957,23989,23989,28085,26037,23989,23956,28118,28086,21941,23957,21941,24021,23989,26037,23957,23989,23957,23989,21941,23957,23925,21909,23989,23989,23957,21909,23989,21909,23957,23925,21909,23957,21909,21941,21909,26006,26005,21909,21909,21909,21909,19893,21909,23925,21909,19861,19861,21877,21877,21876,23958,21942,19861,19861,21877,21877,21909,19829,19829,21909,21909,21909,21877,21877,19829,19861,21877,19861,19861,21909,19829,19862,19829,19829,21877,21877,19829,19829,19829,19829,19829,19861,19829,21877,21877,19829,19829,19829,21877,19797,19829,19797,21877,19797,19829,17781,17781,19829,17781,19797,19829,17781,17781,17781,15733,17813,17781,17781,19829,17781,19830,17749,17782,17749,17749,17782,17781,17781,17749,17749,17749,17749,15733,17749,15733,15733,19798,17749,13685,19798,15733,15734,17782,19829,17749,17749,19798,17750,17782,15701,15733,13685,15733,17749,17749,15733,15701,15701,15701,17749,13653,13685,15701,15733,23958,17749,17749,15701,17717,15734,13653,15702,15734,15702,13653,13653,15702,15701,13653,15701,15701,17749,17750,15701,13653,15701,15701,13653,13653,15670,13653,13621,15702,15670,13653,15702,13653,17750,15670,11605,13653,13622,11605,11605,13621,13654,13654,13654,11638,15702,15702,11605,13653,15669,15702,15670,11606,11573,13654,9557,11605,13622,11573,11573,13653,13621,11605,15702,17751,15670,11573,11574,11573,11606,11605,11605,11574,11573,11574,11573,11573,11605,11573,13654,13622,15670,9557,11605,11605,11574,9526,9557,9557,11574,11606,13621,11605,9557,13590,13622,11542,15670,13654,13621,11574,11573,11606,11605,11573,13622,11573,9525,11574,11574,13654,11605,11605,13622,13621,9558,11574,11605,9557,9526},
 	{28116,28116,28117,28117,28116,28117,28117,26068,28116,28084,28084,26036,26036,26036,28085,28117,28084,26036,26036,26069,26037,26037,26036,26069,26036,26036,26036,26037,26036,26037,26037,26036,26037,26037,23989,24021,26037,26037,26037,26037,23989,26037,26004,26037,26037,26037,23988,23988,26037,23988,23989,23956,26037,23956,23956,23989,23989,26037,23956,26037,26037,26037,26005,23989,21941,23957,26037,26037,26005,26005,23957,23957,23957,23957,21941,21908,23957,23989,21909,21941,23957,21941,19860,21908,23957,23957,21941,21909,21908,23957,23957,21909,23957,23957,21909,21909,21909,21909,19861,21909,21909,23957,23957,21877,21941,21877,23957,21909,21909,21877,21877,19829,21877,19861,21909,21909,19861,19861,21877,21877,21877,21909,19861,19861,19861,19861,19861,21877,19829,19861,21909,21942,19829,19861,19829,19861,19829,19829,21910,21877,19829,19829,19829,21877,17781,19829,19861,17781,19797,19861,19829,19829,19829,17781,19861,19829,21877,17781,19861,19830,19829,17781,17781,19829,19829,19829,17781,17749,17813,17781,17749,17781,19830,17749,17749,17781,17749,17781,19830,21878,19830,17781,15733,17781,17781,15733,17749,21846,19798,15733,15733,17782,17782,17781,17781,15701,13717,17749,19798,15701,17749,17749,17749,17750,17749,15701,15701,15701,13685,15701,15701,15701,15734,13653,13653,15701,17750,15734,15701,15701,15701,15701,15701,17750,15701,15702,17750,15701,11605,15701,15702,13653,13653,15702,19830,17718,15702,15733,13621,13654,11637,13653,15669,13654,13653,17750,13654,11573,13654,15702,15702,13653,13654,15702,13654,13654,13653,13654,13653,11605,15669,13654,11605,13654,13653,13621,11605,13654,13653,13654,15702,17750,13654,13622,13621,11606,13654,13622,15670,13654,13621,13654,15702,13653,11606,9558,13622,13622,13621,13654,15702,13621,11573,11573,11606,11573,11606,11573,13622,13622,11573,9525,11573,11605,11606,13622,13654,11573,11573,13654,13622,11573,13621,13621,11573,13622,11606,15702,15670,9526},
 	{28116,28116,28148,28148,28116,28116,28116,28148,30164,28116,28116,28116,28116,28116,28149,28117,28116,28116,28116,28116,28117,28116,28116,28117,28117,28084,28084,28117,28117,28116,28116,28084,28084,26036,26036,28085,26069,28117,26069,26036,26069,26037,28085,28085,26036,26068,26036,26036,28117,28085,26036,26036,26004,23988,26037,26037,26036,26037,26037,26037,26037,26037,26037,23956,26036,26037,26037,26037,24021,26037,23988,23988,23989,23989,23989,23988,23956,23988,23989,23956,23989,26037,23957,21940,21973,23989,26005,26005,23989,23989,23957,23957,26005,23989,21941,23957,23957,23957,23957,23957,23957,23989,23957,21909,21909,23957,26005,21909,21909,23989,23989,21909,23957,21909,23957,23957,21908,19861,21909,23925,21909,21909,19861,21909,21877,21877,21909,21941,21909,21909,21877,21909,21909,19861,19861,19829,19861,19829,21909,21877,19829,19861,19861,21877,19861,19861,21909,19861,21877,21909,19861,19829,19829,19829,19829,19829,21877,19829,19829,19861,19829,17781,17781,21877,21910,19829,17781,17781,21877,21877,21877,19829,17813,19829,19797,17781,19829,19829,17749,17781,17781,17781,17749,21877,19862,19829,19797,19829,19830,19797,17749,15701,19830,19830,19830,17749,15733,17781,17781,15733,15733,17749,17782,17782,17781,15733,19829,17749,17781,17749,19798,19797,19830,17749,17781,17749,17749,15733,15701,17749,17750,15733,15701,15734,17749,17749,19798,19797,15733,17782,19798,15701,15701,15701,17782,17750,15701,15733,15701,13653,15701,15669,19798,17749,15701,15701,15733,13653,13653,15702,15702,11605,13653,15734,13653,15670,15701,15702,15702,15669,15701,15702,15702,11606,13653,13653,15702,15702,13653,11605,15702,15701,13622,15702,11605,13654,15702,13653,11638,13621,13654,11605,17750,13654,13654,13622,15702,13654,15670,15702,15702,11606,11605,13654,11605,11605,11605,13589,15702,11605,11573,17750,13654,13654,11605,13653,13622,11574,11574,13622,15670,9557,13654,11605,11605,11573,13654,17750,15670,11574},
@@ -1991,10 +1990,12 @@ void video_box(int x1, int y1, int x2, int y2, short pixel_color);
 void imageProcessing();
 void selectionInstructions();
 
-void sobel(const unsigned short int image[240][320]);
+void sobel1(const unsigned short int image[240][320]);
+void sobel2(const unsigned short int image[240][320]);
 void rgb_to_grayscale(const unsigned short int rgb[240][320]);
 void adjust_brightness(const unsigned short int rgb[240][320], int brightness_change);
 void grayscale_to_rgb(const unsigned short int grayscale[240][320]);
+void pinkLaplacian(const unsigned short int image[240][320]);
 
 int switchInput();
 
@@ -2021,6 +2022,7 @@ unsigned short int EditedImageCapture[240][320];
 
 volatile int edgeDetection = 0;
 volatile int brightness = 0;
+volatile int laplacian = 0;
 volatile int spaceBarPressed = 0;
 volatile int key0Pressed = 0;
 volatile int key1Pressed = 0;
@@ -2091,6 +2093,7 @@ int main(void) {
 		if(capture){
 			edgeDetection = 0;
 			brightness = 0;
+			laplacian = 0;
 			spaceBarPressed = 0;
 			key0Pressed = 0;
 			key1Pressed = 0;
@@ -2458,6 +2461,7 @@ void clear_all_text() {
 void resetGlobals(){
 	edgeDetection = 0;
 	brightness = 0;
+	laplacian = 0;
 	spaceBarPressed = 0;
 	key0Pressed = 0;
 	key1Pressed = 0;
@@ -2558,14 +2562,14 @@ void imageProcessing(){
 
     char one[60] = "Press \"O\" to display original image\0";
   	char two[60] = "Press \"B\" to change the brightness\0";
-  	char three[60] = "Press \"E\" for edge detection\0";
+  	char three[60] = "\"E\" for edge detection, \"L\" for pink laplcian\0";
 	char four[60] = "Press \"C\" to switch between rgb and grayscale";
   	char five[60] = "Press esc to return to main menu\0";
 	char six[60] = "Press backspace anytime to return here\0";
   
   	draw_text(15, 10, one);
   	draw_text(15, 16, two);
-  	draw_text(15, 22, three);
+  	draw_text(5, 22, three);
 	draw_text(15, 30, four);
 	draw_text(15, 40, five);
 	draw_text(15, 50, six);
@@ -2702,14 +2706,14 @@ void imageProcessing(){
 
 			if (capture) {
 				
-				sobel(EditedImageCapture);
+				sobel1(EditedImageCapture);
 				draw_image(edges, 0,0,320,240);
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 			} else if(imageNumber == 1){
 				
 				selectionInstructions();
-				sobel(img);
+				sobel2(img);
 				draw_image(edges, 0, 0, 320, 240);
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
@@ -2717,21 +2721,61 @@ void imageProcessing(){
 			} else if (imageNumber == 2){
 				
 				selectionInstructions();
-				sobel(gray);
+				sobel1(gray);
 				draw_image(edges, 0, 0, 320, 240);
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 			} else if (imageNumber == 3){
 				
 				selectionInstructions();
-				sobel(landscape);
+				sobel1(landscape);
 				draw_image(edges, 0, 0, 320, 240);
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
 			} else if (imageNumber == 4){
 				
 				selectionInstructions();
-				sobel(dog);
+				sobel2(dog);
+				draw_image(edges, 0, 0, 320, 240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+			}
+		} else if (laplacian){
+			
+			clear_all_text();
+
+			if (capture) {
+				
+				pinkLaplacian(EditedImageCapture);
+				draw_image(edges, 0,0,320,240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+			} else if(imageNumber == 1){
+				
+				selectionInstructions();
+				pinkLaplacian(img);
+				draw_image(edges, 0, 0, 320, 240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+				
+			} else if (imageNumber == 2){
+				
+				selectionInstructions();
+				pinkLaplacian(gray);
+				draw_image(edges, 0, 0, 320, 240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+			} else if (imageNumber == 3){
+				
+				selectionInstructions();
+				pinkLaplacian(landscape);
+				draw_image(edges, 0, 0, 320, 240);
+				wait_for_vsync();
+				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
+			} else if (imageNumber == 4){
+				
+				selectionInstructions();
+				pinkLaplacian(dog);
 				draw_image(edges, 0, 0, 320, 240);
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
@@ -2862,7 +2906,34 @@ void selectionInstructions(){
 	draw_text(2, 57, instructions);
 }
 
-/*void sobel(const unsigned short int image[240][320]){
+void pinkLaplacian(const unsigned short int image[240][320]) {
+    // Iterate through each pixel in the image, excluding border pixels
+    for (int i = 1; i < 239; ++i) {
+        for (int j = 1; j < 319; ++j) {
+            int sum = 0;
+
+            // Compute the Laplacian operator
+            for (int m = -1; m <= 1; m += 2) {
+                for (int n = -1; n <= 1; n += 2) {
+                    // Use boundary check:
+                    sum += image[i + m][j + n];
+                }
+            }
+            
+            // Calculate the Laplacian result
+            int temp = image[i][j] * 4 - sum;
+
+            // Handle excess values:
+            if (temp > 31) temp = 31;
+            if (temp < 0) temp = 0x0;
+
+            // Store the Laplacian value
+            edges[i][j] = (temp << 11) | (temp << 5) | temp;
+        }
+    }
+}
+
+void sobel1(const unsigned short int image[240][320]){
 	// Sobel operator kernels
 	int sobel_x[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
 	// to detect the horizontal edges
@@ -2893,9 +2964,9 @@ void selectionInstructions(){
         edges[y][x] = abs(gradient_x) + abs(gradient_y);
     	}
 	}	
-}*/
+}
 
-void sobel(const unsigned short int image[240][320]) {
+void sobel2(const unsigned short int image[240][320]) {
     int square[9], temp1, temp2;
     
     // Iterate through each pixel in the image, excluding border pixels
@@ -2934,7 +3005,7 @@ void rgb_to_grayscale(const unsigned short int rgb[240][320]) {
             unsigned short int gray = (unsigned short int)((0.2126 * r) + (0.7152 * g) + (0.0722 * b));
 			
             // Store grayscale value
-            grayscale[y][x] = gray;
+            grayscale[y][x] = (gray<<11) | (gray<<5) | gray;
         }
     }
 }
@@ -3055,21 +3126,31 @@ void ps2_ISR(void) {
 		  original = 0;
 		  brightness = 0;
 		  switchColours = 0;
+		  laplacian = 0;
 		  
       } else if (compareBytes == (char) 0xf032){ //B key
           brightness = 1;
 		  original = 0;
 		  edgeDetection = 0;
 		  switchColours = 0;
+		  laplacian = 0;
+		  
+      } else if (compareBytes == (char) 0xf04b){ //L key
+          brightness = 0;
+		  original = 0;
+		  edgeDetection = 0;
+		  switchColours = 0;
+		  laplacian = 1;
 		  
       } else if (compareBytes == (char) 0xf029){ // Space Bar
         spaceBarPressed = 1;
 		  
-      } else if (compareBytes == (char) 0xf044){
+      } else if (compareBytes == (char) 0xf044){ // key o
 		  original = 1;
 		  edgeDetection = 0;
 		  brightness = 0;
 		  switchColours = 0;
+		  laplacian = 0;
 		  
 	  } else if (compareBytes == (char) 0xf076){ // esc
 		  returnToMain = 1;
@@ -3127,6 +3208,7 @@ void ps2_ISR(void) {
 		  	original = 0;
 		  	brightness = 0;
 		  	switchColours = 1;
+		  	laplacian = 0;
 			  
 	  } else if (compareBytes == (char) 0xe0f072) { // up
 			if (ySpritePosition < 240) ySpritePosition++;
@@ -3298,5 +3380,11 @@ void interrupt_handler(void){
 }
 
 	
+	
+	
+
+	
+	
+
 	
 	
