@@ -2735,7 +2735,7 @@ void imageProcessing(){
 			} else if (imageNumber == 4){
 				
 				selectionInstructions();
-				sobel2(dog);
+				sobel1(dog);
 				draw_image(edges, 0, 0, 320, 240);
 				wait_for_vsync();
 				pixel_buffer_start = *(pixel_ctrl_ptr + 1);
