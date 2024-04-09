@@ -5,7 +5,7 @@ built for the ECE243 Computer organization final project at UofT
 ![CB4DB82F-0AD7-472F-BC68-9A927A062180_1_105_c](https://github.com/rkchan77/camjam/assets/86031810/b949885b-320d-4cdd-be0c-98a254d020ed)
 
 ## Camera setup 
-Live video stream was fed into the board from an NTSC camcorder connected to the Video-In controller port. 
+Live video stream was fed into the board from an NTSC camcorder connected to the Video-In controller port. Used video to take image captures  
 ![5679F517-8D5A-43F1-B17B-CFA40613340A_1_105_c](https://github.com/rkchan77/camjam/assets/86031810/ddb5867d-9301-4bca-9507-9febac5bfefb)
 
 
